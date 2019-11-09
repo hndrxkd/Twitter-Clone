@@ -22,7 +22,11 @@ class HomeViewController: UITableViewController {
         loadTweets()
         refreshController.addTarget(self, action: #selector(loadTweets), for: .valueChanged)
         tableView.refreshControl = refreshController
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        self.loadTweets()
     }
     
     @objc func loadTweets(){
@@ -31,7 +35,7 @@ class HomeViewController: UITableViewController {
         let URL  = "https://api.twitter.com/1.1/statuses/home_timeline.json"
         let params = ["count": numTweets]
         
-        TwitterAPICaller.client?.getDictionariesRequest(url: URL, parameters: params, success: { (tweets: [NSDictionary]) in
+        TwitterAPICaller.client?.getDictionariesRequest(url: URL, parameters: params as [String : Any], success: { (tweets: [NSDictionary]) in
             
             self.tweetArray.removeAll()
             
@@ -55,7 +59,7 @@ class HomeViewController: UITableViewController {
         
          let URL  = "https://api.twitter.com/1.1/statuses/home_timeline.json"
         let params = ["count": numTweets]
-        TwitterAPICaller.client?.getDictionariesRequest(url: URL, parameters: params, success: { (tweets: [NSDictionary]) in
+        TwitterAPICaller.client?.getDictionariesRequest(url: URL, parameters: params as [String : Any], success: { (tweets: [NSDictionary]) in
             
             self.tweetArray.removeAll()
             
@@ -86,6 +90,11 @@ class HomeViewController: UITableViewController {
     
     
     // MARK: - Table view data source
+    
+    
+    func configure_button(){
+        
+    }
 
 
     func loadImage(user: NSDictionary , cell: tweetCell){
@@ -117,10 +126,15 @@ class HomeViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tweetCell" , for: indexPath) as! tweetCell
         
         let user = tweetArray[indexPath.row]["user"] as? NSDictionary
-       
+      
         loadImage(user: user!, cell: cell)
         cell.usernameLabel.text = user?["name"] as? String
+        cell.handleLabel.text = user?["screen_name"] as? String
         cell.tweetLabel.text = tweetArray[indexPath.row]["text"] as? String
+        cell.tweetID = tweetArray[indexPath.row]["id"] as! Int
+        cell.setFavorite(tweetArray[indexPath.row]["favorited"] as! Bool)
+        cell.setRetweet(tweetArray[indexPath.row]["retweeted"] as! Bool)
+        
         
         return cell
        
